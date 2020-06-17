@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pomodoro</title>
+</head>
+<style>
+    body{
+        background-color: black;
+    }
+  
+    #container{
+        border:1px solid white;
+        border-radius :20px;
+        width:400px;
+        margin:20px auto;
+        padding:20px;
+        text-align:center;
+        background : white;
+    }
+    #cronometro{ 
+        color:blue; 
+        font-size:50px; 
+        margin:10px auto;
+        border : 5px solid blue;
+        border-radius:50%;
+        width:200px;
+        height:200px;
+        overflow:hidden;
+        position:relative;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        cursor:default;}
+
+    #tempo{
+        margin-top:70px;
+        z-index : 1;
+        position:relative;
+        }
+    #filler{
+        background : red;
+        height: 0px;
+        width: 200px;
+        position:absolute;
+        bottom:0;
+        }
+    
+    #botoes button { 
+        background:#4da6ff; 
+        border:none; 
+        color:#fff; 
+        cursor:pointer; 
+        padding:5px; 
+        width:90px; 
+        margin:10px auto;
+        font-size:14px;
+        height : 50px;
+        border-radius : 50px;
+        }
+    
+    #botoes button#intervalocurto{
+        background : violet;
+        }
+    
+    #botoes button#intervalolongo{
+        background : yellowgreen;
+        }
+
+    #botoes button#parar{
+        background : #f00;
+        }
+
+    
+
+</style>
+<body>
+    <header>
+        <center>
+            <h1 style="color: red;">Pomodoro</h1>
+        </center>
+        <p style="color: white;" style="text-justify: auto;">A técnica foi desenvolvida no final dos anos 80 pelo italiano Francesco Cirillo, que procurava uma maneira de aumentar sua produtividade nos estudos durante os primeiros anos de universidade. Para isso, ele utilizou um timer de cozinha para organizar suas tarefas.</p>
+    </header>
+    <div  id="pomodoro">
+        <div id="container">
+            <div id="cronometro">
+                <div id="tempo">
+                    <span id="minutos">25</span>
+                    <span id="dois pontos">:</span>
+                    <span id="secundos">00</span>
+                </div>
+                <div id="filler"></div>
+            </div>
+
+            <div id="botoes">
+                <button id="trabalho">Começar</button>
+                <button id="intervalocurto">Intervalo curto</button>
+                <button id="intervalolongo">Intervalo Longo</button>
+                <button id="parar">Parar</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        let pomodoro= {
+            started:false,
+            minutos:0,
+            secundos:0,
+            fillerHeight:0,
+            fillerIncrement:0,
+            Interval: null,
+            minutosDom:null,
+            secundosDom:null,
+            fillerDom:null,
+            iniciar(){
+                var self = this;
+                this.minutosDom = window.document.getElementById("minutos")
+                this.secundosDom = window.document.getElementById("secundos")
+                this.fillerDom = window.document.getElementById("filler")
+                this.Interval = setInterval(function(){
+                    self.IntervalCallback.apply(self)
+                }, 1000)
+                window.document.getElementById("trabalho").onclick=function(){
+                    self.começartrabalho.apply(self)
+                }
+                window.document.getElementById("intervalocurto").onclick=function(){
+                    self.começarintervalocurto.apply(self)
+                }
+                window.document.getElementById("intervalolongo").onclick=function(){
+                    self.começarintervalolongo.apply(self)
+                }
+                window.document.getElementById("parar").onclick = function(){
+                    self.parartempo.apply(self)
+                }
+            },
+            resetarvariaveis: function(mins,secs,started){
+                this.minutos = mins
+                this.secundos = secs
+                this.started = started
+                this.fillerIncrement = 200/(this.minutos*60)
+                this.fillerHeight = 0
+
+            },
+            começartrabalho: function(){
+                this.resetarvariaveis(25,0,true)
+            },
+            começarintervalocurto: function(){
+                this.resetarvariaveis(5,0,true)
+            },
+            começarintervalolongo: function(){
+                this.resetarvariaveis(15,0,true)
+            },
+            parartempo: function(){
+                this.resetarvariaveis(25,0,false)
+                this.atualizarDom()
+            },
+            dobrardigito: function(num){
+                if(num<10){
+                    return"0"+ parseInt(num,10)
+                }
+                return num
+            },
+            atualizarDom: function(){
+                this.minutosDom.innerHTML = this.dobrardigito(this.minutos)
+                this.secundosDom.innerHTML = this.dobrardigito(this.secundos)
+                this.fillerHeight = this.fillerHeight + this.fillerIncrement
+                this.fillerDom.style.height = this.fillerHeight+'px';
+            },
+            IntervalCallback: function(){
+                if(!this.started) return false
+                if(this.secundos == 0){
+                    if(this.minutos == 0){
+                        this.tempocompleto()
+                        return ;
+                    }
+                    this.secundos = 59
+                    this.minutos--
+                }else{
+                    this.secundos--
+                }this.atualizarDom()
+            },
+            tempocompleto: function(){
+                this.started = false;
+                this.fillerHeight = 0;
+            }
+
+
+
+        }
+        window.onload = function(){
+            pomodoro.iniciar();
+        };
+    </script>
+    
+</body>
+</html>
